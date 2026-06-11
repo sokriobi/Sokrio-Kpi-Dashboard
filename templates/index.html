@@ -619,6 +619,11 @@
       const loginCont = document.getElementById('login-container');
       loginCont.style.display = 'none';
       document.body.classList.remove('login-mode');
+      
+      // Load data and set up automatic refresh
+      fetchData();
+      setInterval(fetchData, 5 * 60 * 1000);
+      
       if (!dataPreFetched) {
         showLoading(true, 'Finishing up data loading…');
       } else {
@@ -1076,8 +1081,11 @@
   const today = `${year}-${month}-${day}`;
   document.getElementById('date-from').value = today;
   document.getElementById('date-to').value   = today;
-  fetchData();
-  setInterval(fetchData, 5 * 60 * 1000);
+
+  if (isLoggedIn()) {
+    fetchData();
+    setInterval(fetchData, 5 * 60 * 1000);
+  }
 </script>
 </body>
 </html>
