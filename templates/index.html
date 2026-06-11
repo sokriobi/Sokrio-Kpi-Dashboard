@@ -133,16 +133,26 @@
 
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(6, 1fr);
       gap: 16px;
       margin-bottom: 28px;
+    }
+    @media (max-width: 1200px) {
+      .summary-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
     .summary-card {
       background: rgba(20, 27, 53, 0.4);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 20px 14px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative; overflow: hidden;
       text-align: center;
@@ -509,6 +519,9 @@
         <span id="status-text">Connecting…</span>
       </div>
       <div id="last-updated"></div>
+      <button class="btn" style="border-color: rgba(248,113,113,0.4); color: var(--red); display: flex; align-items: center; gap: 6px; background: rgba(248,113,113,0.05);" onclick="handleLogout()">
+        <i class="fa fa-sign-out-alt"></i> Sign Out
+      </button>
     </div>
   </div>
 </nav>
@@ -622,6 +635,18 @@
       void cardEl.offsetWidth; // trigger reflow
       cardEl.classList.add('shake');
     }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('sokrio_logged_in');
+    loggedIn = false;
+    document.body.classList.add('login-mode');
+    const loginCont = document.getElementById('login-container');
+    loginCont.style.display = 'flex';
+    loginCont.style.opacity = '1';
+    // Clear inputs
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').style.display = 'none';
   }
 
   function fmt(val) {
