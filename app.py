@@ -17,7 +17,7 @@ if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
 from datetime import datetime, timedelta
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
 sys.path.insert(0, '.')
 from extractor import SokrioClient, CLIENTS, KPI_METRICS
@@ -152,6 +152,11 @@ def fetch_data(date_from: str, date_to: str) -> dict:
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/Assets/<path:filename>")
+def serve_assets(filename):
+    return send_from_directory("Assets", filename)
 
 
 @app.route("/api/kpis")

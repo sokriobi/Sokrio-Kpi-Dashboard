@@ -6,10 +6,10 @@
   <title>Sokrio KPI Live Dashboard – 49 Clients Scale Ready</title>
   <meta name="description" content="Real-time KPI comparison dashboard for multiple clients using Sokrio API." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
   <style>
     /* ─── CSS Reset & Tokens ─────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +40,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Outfit', 'Inter', sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -138,23 +138,25 @@
       margin-bottom: 28px;
     }
     .summary-card {
-      background: var(--card);
+      background: rgba(20, 27, 53, 0.4);
+      backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 24px;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative; overflow: hidden;
       text-align: center;
     }
     .summary-card::after {
       content: ''; position: absolute;
-      top: 0; left: 0; right: 0; height: 4px;
+      top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--accent), var(--cyan));
+      opacity: 0.8;
     }
-    .summary-card:hover { transform: translateY(-3px); box-shadow: var(--glow); }
-    .summary-card .icon { font-size: 28px; margin-bottom: 12px; }
-    .summary-card .label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 8px; }
-    .summary-card .value { font-size: 32px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    .summary-card:hover { transform: translateY(-4px); box-shadow: var(--glow); border-color: rgba(99,130,255,0.4); }
+    .summary-card .icon { font-size: 28px; margin-bottom: 12px; filter: drop-shadow(0 4px 10px rgba(99,130,255,0.2)); }
+    .summary-card .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 8px; }
+    .summary-card .value { font-size: 30px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.25); font-family: 'Outfit', sans-serif; }
     .summary-card .sub { font-size: 13px; color: var(--text3); margin-top: 6px; }
 
     .charts-row {
@@ -175,15 +177,16 @@
     .chart-container { position: relative; height: 260px; }
 
     .table-card {
-      background: var(--card);
+      background: rgba(20, 27, 53, 0.4);
+      backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 28px;
       margin-bottom: 28px;
       box-shadow: var(--shadow);
       overflow-x: auto;
     }
-    .table-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .table-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif; }
     table { width: 100%; border-collapse: collapse; min-width: 800px; }
     thead th {
       padding: 16px; text-align: left;
@@ -202,20 +205,58 @@
 
     footer { border-top: 1px solid var(--border); padding: 20px 0; text-align: center; color: var(--text3); font-size: 13px; margin-top: 16px; }
 
+    /* ─── Loading Overlay ─────────────────────────────────── */
     #loading-overlay {
-      position: fixed; inset: 0; background: rgba(10,13,26,0.9);
-      backdrop-filter: blur(10px);
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(99,130,255,0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 80% 60% at 80% 100%, rgba(167,139,250,0.06) 0%, transparent 60%),
+                  #080c1a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 1000; gap: 20px;
+      z-index: 10000;
     }
-    .spinner {
-      width: 52px; height: 52px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
+    .loading-glass-panel {
+      background: rgba(20, 27, 53, 0.45);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 28px;
+      padding: 52px 56px 44px;
+      text-align: center;
+      box-shadow:
+        0 32px 80px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      min-width: 300px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text2);
+      margin-top: 24px;
+      letter-spacing: 0.04em;
+    }
+    .progress-percentage {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 4px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+    .progress-bar-track {
+      width: 180px;
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 99px;
+      margin: 14px auto 0;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 99px;
+      transition: width 0.1s ease;
+      box-shadow: 0 0 10px rgba(99,130,255,0.5);
+    }
 
     #error-msg {
       background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3);
@@ -224,19 +265,239 @@
     }
     #last-updated { font-size: 13px; color: var(--text3); }
     .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: rgba(99,130,255,0.15); color: var(--accent); }
+
+    /* ─── Login Screen Styling ───────────────────────────────── */
+    body.login-mode nav,
+    body.login-mode .container,
+    body.login-mode footer,
+    body.login-mode #loading-overlay {
+      display: none !important;
+    }
+    body.login-mode #login-container {
+      display: flex !important;
+    }
+
+    #login-container {
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% -10%, rgba(99,130,255,0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 80% 110%, rgba(167,139,250,0.12) 0%, transparent 60%),
+        #080c1a;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Subtle grid pattern */
+    #login-container::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,130,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,130,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .login-card {
+      background: rgba(15, 20, 45, 0.6);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 48px 44px;
+      width: 420px;
+      max-width: 92vw;
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(99,130,255,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      z-index: 10;
+      text-align: center;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    /* Top highlight line */
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,130,255,0.5), transparent);
+      border-radius: 99px;
+    }
+
+    .login-logo {
+      display: inline-block;
+      margin-bottom: 18px;
+      animation: logoFloat 4s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .login-card h2 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text3);
+      margin-bottom: 32px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .input-group {
+      text-align: left;
+      margin-bottom: 22px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 13px 18px;
+      background: rgba(26, 35, 64, 0.5);
+      border: 1px solid rgba(99, 130, 255, 0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.3s;
+      box-sizing: border-box;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(99, 130, 255, 0.35);
+      background: rgba(26, 35, 64, 0.75);
+    }
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(99,130,255,0.3);
+      transition: all 0.2s;
+    }
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99,130,255,0.45);
+    }
+    .login-error {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--red);
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .shake {
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .prefetch-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+      font-size: 12px;
+      color: var(--text3);
+    }
+    .status-dot-pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: pulse 1.5s infinite;
+    }
+    .status-dot-pulse.ready {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
   </style>
 </head>
 <body>
 
+<!-- Login Screen -->
+<div id="login-container">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="/Assets/Sokrio update logo.png sized - Copy.png" alt="Sokrio Logo" style="max-height: 85px; max-width: 100%; object-fit: contain; margin-bottom: 10px;" />
+    </div>
+    <h2>KPI LIVE DASHBOARD</h2>
+    
+    <div id="login-error" class="login-error"></div>
+    
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="input-group">
+        <label for="login-email">Email Address</label>
+        <input type="email" id="login-email" required placeholder="e.g. your@sokrio.com">
+      </div>
+      <div class="input-group">
+        <label for="login-password">Password</label>
+        <div style="position: relative;">
+          <input type="password" id="login-password" required placeholder="••••••••" style="padding-right: 45px;">
+          <span onclick="togglePasswordVisibility()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text2); z-index: 5;">
+            <i id="password-toggle-icon" class="fa fa-eye"></i>
+          </span>
+        </div>
+      </div>
+      <button type="submit" class="btn-login">Sign In</button>
+    </form>
+    
+    <div class="prefetch-status">
+      <span class="status-dot-pulse"></span>
+      <span id="prefetch-text">Pre-fetching today's live data...</span>
+    </div>
+  </div>
+</div>
+
 <div id="loading-overlay">
-  <div class="spinner"></div>
-  <p id="loading-text">Fetching live data from Sokrio API…</p>
+  <div class="loading-glass-panel">
+    <!-- Logo fill-up animation -->
+    <div style="position: relative; width: 110px; height: 110px; margin: 0 auto; animation: logoFloat 4s ease-in-out infinite;">
+      <!-- Dim grayscale base -->
+      <img src="/Assets/Sokrio update logo.png sized - Copy.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0.12; filter: grayscale(1);" />
+      <!-- Color fill clipped from bottom up -->
+      <div id="logo-fill-wrapper" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; overflow: hidden;">
+        <img src="/Assets/Sokrio update logo.png sized - Copy.png" alt="Sokrio" style="position: absolute; bottom: 0; left: 0; width: 110px; height: 110px; object-fit: contain; filter: drop-shadow(0 0 14px rgba(99,130,255,0.7));" />
+      </div>
+    </div>
+    <!-- Status text -->
+    <p id="loading-text" class="progress-text">Loading live KPI data…</p>
+    <p id="progress-percent-text" class="progress-percentage">0%</p>
+    <!-- Slim progress bar -->
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-bar-fill"></div>
+    </div>
+  </div>
 </div>
 
 <nav>
   <div class="container">
     <div class="nav-brand">
-      <div class="nav-logo">📊</div>
+      <div class="nav-logo" style="background: transparent; border-radius: 0; display: flex; align-items: center; justify-content: center; width: auto; height: 40px;">
+        <img src="/Assets/Sokrio update logo.png sized - Copy.png" alt="Sokrio Logo" style="max-height: 40px; max-width: 100%; object-fit: contain;" />
+      </div>
       <div>
         <div class="nav-title">Sokrio <span>KPI Dashboard</span></div>
         <div style="font-size:11px;color:var(--text3)">Grouped Performance View</div>
@@ -301,16 +562,7 @@
     </table>
   </div>
 
-  <div class="charts-row">
-    <div class="chart-card">
-      <h3>📈 KPI Distribution <span class="tag">By Client</span></h3>
-      <div class="chart-container"><canvas id="barChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>🥧 Share of Total <span class="tag">Metric Split</span></h3>
-      <div class="chart-container"><canvas id="doughnutChart"></canvas></div>
-    </div>
-  </div>
+
 </div>
 
 <footer>
@@ -321,7 +573,56 @@
 
 <script>
   let currentMode = 'today';
-  let barChart, doughnutChart;
+  let loggedIn = false;
+  let dataPreFetched = false;
+
+  function isLoggedIn() {
+    return loggedIn || localStorage.getItem('sokrio_logged_in') === 'true';
+  }
+
+  function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('login-password');
+    const toggleIcon = document.getElementById('password-toggle-icon');
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.className = 'fa fa-eye-slash';
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.className = 'fa fa-eye';
+    }
+  }
+
+  function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-password').value;
+    const errorEl = document.getElementById('login-error');
+    const cardEl = document.querySelector('.login-card');
+
+    if (email === 'kpi@sokrio.com' && pass === 'sokrio123') {
+      localStorage.setItem('sokrio_logged_in', 'true');
+      loggedIn = true;
+      
+      const loginCont = document.getElementById('login-container');
+      loginCont.style.opacity = '0';
+      loginCont.style.transition = 'opacity 0.4s ease';
+      setTimeout(() => {
+        loginCont.style.display = 'none';
+        document.body.classList.remove('login-mode');
+        if (!dataPreFetched) {
+          showLoading(true, 'Finishing up data loading…');
+        } else {
+          showLoading(false);
+        }
+      }, 400);
+    } else {
+      errorEl.textContent = '❌ Wrong password or email!';
+      errorEl.style.display = 'block';
+      cardEl.classList.remove('shake');
+      void cardEl.offsetWidth; // trigger reflow
+      cardEl.classList.add('shake');
+    }
+  }
 
   function fmt(val) {
     if (val === undefined || val === null) return '0';
@@ -338,11 +639,106 @@
       document.getElementById('btn-' + m).classList.toggle('active', m === mode);
     });
     document.getElementById('custom-dates').style.display = mode === 'custom' ? 'flex' : 'none';
-    if (mode !== 'custom') fetchData();
+
+    // Auto calculate dates and set to the date inputs
+    const localDate = new Date();
+    const toDate = new Date(localDate);
+    let fromDate = new Date(localDate);
+
+    if (mode === 'today') {
+      // today to today
+    } else if (mode === '7days') {
+      fromDate.setDate(localDate.getDate() - 6);
+    } else if (mode === '30days') {
+      fromDate.setDate(localDate.getDate() - 29);
+    }
+
+    if (mode !== 'custom') {
+      const formatYMD = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      document.getElementById('date-from').value = formatYMD(fromDate);
+      document.getElementById('date-to').value = formatYMD(toDate);
+      fetchData();
+    }
+  }
+
+  let progressInterval;
+  let currentProgress = 0;
+
+  function startProgress() {
+    currentProgress = 0;
+    updateProgressUI(0);
+    
+    const duration = 12000; // 12 seconds target duration
+    const stepTime = 100;
+    const totalSteps = duration / stepTime;
+    
+    clearInterval(progressInterval);
+    progressInterval = setInterval(() => {
+      if (currentProgress < 90) {
+        currentProgress += 90 / totalSteps;
+        updateProgressUI(Math.round(currentProgress));
+      }
+    }, stepTime);
+  }
+
+  function finishProgress() {
+    clearInterval(progressInterval);
+    let endInterval = setInterval(() => {
+      if (currentProgress < 100) {
+        currentProgress += 4;
+        if (currentProgress > 100) currentProgress = 100;
+        updateProgressUI(Math.round(currentProgress));
+      } else {
+        clearInterval(endInterval);
+      }
+    }, 25);
+  }
+
+  function updateProgressUI(percent) {
+    const fillWrapper = document.getElementById('logo-fill-wrapper');
+    if (fillWrapper) {
+      fillWrapper.style.height = percent + '%';
+    }
+    const percentEl = document.getElementById('progress-percent-text');
+    if (percentEl) {
+      percentEl.textContent = percent + '%';
+    }
+    const barFill = document.getElementById('progress-bar-fill');
+    if (barFill) {
+      barFill.style.width = percent + '%';
+    }
+  }
+
+  function showLoading(show, text = 'Authenticating & fetching KPIs…') {
+    if (!isLoggedIn()) return;
+    const el = document.getElementById('loading-overlay');
+    if (show) {
+      el.style.display = 'flex';
+      document.getElementById('loading-text').textContent = text;
+      startProgress();
+    } else {
+      finishProgress();
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => {
+          el.style.display = 'none';
+          el.style.opacity = '1';
+        }, 400);
+      }, 600);
+    }
   }
 
   async function fetchData() {
-    showLoading(true);
+    // Only show global loading overlay if user is logged in
+    if (isLoggedIn()) {
+      showLoading(true);
+    }
     hideError();
     try {
       const url = new URL(window.location.origin + '/api/kpis');
@@ -357,7 +753,9 @@
     } catch (err) {
       showError('Failed to load data: ' + err.message);
     } finally {
-      showLoading(false);
+      if (isLoggedIn()) {
+        showLoading(false);
+      }
     }
   }
 
@@ -383,6 +781,18 @@
   function renderDashboard(data) {
     const { clients, comparison, generated_at, date_from, date_to } = data;
     const kpiLabels = Object.keys(comparison);
+
+    // Set pre-fetch flag as ready
+    dataPreFetched = true;
+    const prefetchText = document.getElementById('prefetch-text');
+    if (prefetchText) {
+      prefetchText.textContent = "✓ Today's data pre-fetched and ready!";
+      prefetchText.style.color = "var(--green)";
+      const dot = document.querySelector('.status-dot-pulse');
+      if (dot) {
+        dot.className = "status-dot-pulse ready";
+      }
+    }
 
     // Update Status
     document.getElementById('status-dot').style.background = 'var(--green)';
@@ -428,7 +838,15 @@
 
     // Data Rows
     Object.entries(clients).forEach(([name, info]) => {
-      if (info.error) return;
+      if (info.error) {
+        let rowHtml = `<tr><td class="company-name-cell" style="color: var(--red);">${name} (Error)</td>`;
+        kpiLabels.forEach(() => {
+          rowHtml += `<td style="color: var(--red); font-size: 12px;">⚠️ Failed</td>`;
+        });
+        rowHtml += '</tr>';
+        tbody.innerHTML += rowHtml;
+        return;
+      }
       let rowHtml = `<tr><td class="company-name-cell">${name}</td>`;
       kpiLabels.forEach(label => {
         const val = info.kpis?.[label]?.value ?? 0;
@@ -446,62 +864,11 @@
     totalRowHtml += '</tr>';
     tbody.innerHTML += totalRowHtml;
 
-    // 3. Charts
-    renderCharts(kpiLabels, comparison, grandTotals);
+
   }
 
-  function renderCharts(labels, comparison, totals) {
-    const clientNames = Object.keys(Object.values(comparison)[0] || {});
-    const shortLabels = labels.map(l => l.replace(' (Report)', '').replace(' (Non-Report)', ' (NR)'));
 
-    if (barChart) barChart.destroy();
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    barChart = new Chart(barCtx, {
-      type: 'bar',
-      data: {
-        labels: shortLabels,
-        datasets: clientNames.map((name, i) => ({
-          label: name,
-          data: labels.map(l => parseFloat(comparison[l][name] || 0)),
-          backgroundColor: i === 0 ? 'rgba(99,130,255,0.8)' : 'rgba(167,139,250,0.8)',
-          borderRadius: 6
-        }))
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#94a3b8' } } },
-        scales: {
-          x: { ticks: { color: '#64748b' }, grid: { display: false } },
-          y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-        }
-      }
-    });
 
-    if (doughnutChart) doughnutChart.destroy();
-    const dCtx = document.getElementById('doughnutChart').getContext('2d');
-    doughnutChart = new Chart(dCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Check-ins', 'Orders', 'Outlets', 'Delivered'],
-        datasets: [{
-          data: [totals['CheckIn (Report)'], totals['Order Created'], totals['Outlets Visited'], totals['Delivered Created']],
-          backgroundColor: ['#6382ff', '#a78bfa', '#22d3ee', '#fbbf24'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        cutout: '70%',
-        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 20 } } }
-      }
-    });
-  }
-
-  function showLoading(show, text = 'Authenticating & fetching KPIs…') {
-    const el = document.getElementById('loading-overlay');
-    el.style.display = show ? 'flex' : 'none';
-    document.getElementById('loading-text').textContent = text;
-  }
 
   function showError(msg) {
     const el = document.getElementById('error-msg');
@@ -511,16 +878,172 @@
 
   function hideError() { document.getElementById('error-msg').style.display = 'none'; }
 
-  function exportTableToExcel(tableID, filename = '') {
+  function parseValueForExcel(str) {
+    if (!str) return 0;
+    str = str.trim().replace(/,/g, '');
+    if (str.toUpperCase().endsWith('M')) {
+      return parseFloat(str) * 1000000;
+    }
+    if (str.toUpperCase().endsWith('K')) {
+      return parseFloat(str) * 1000;
+    }
+    const num = parseFloat(str);
+    return isNaN(num) ? str : num;
+  }
+
+  async function exportTableToExcel(tableID, filename = '') {
     const table = document.getElementById(tableID);
-    const wb = XLSX.utils.table_to_book(table, { sheet: "KPI Breakdown" });
+    if (!table) return;
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('KPI Breakdown', {
+      views: [{ showGridLines: true }]
+    });
+
+    // Extract Headers
+    const headers = [];
+    const headerCells = table.querySelectorAll('thead th');
+    headerCells.forEach(cell => {
+      headers.push(cell.innerText.trim());
+    });
+    const headerRow = worksheet.addRow(headers);
+    headerRow.height = 28;
+
+    // Header Styling
+    headerRow.eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF141B35' } // Theme Navy
+      };
+      cell.font = {
+        name: 'Segoe UI',
+        bold: true,
+        color: { argb: 'FFFFFFFF' },
+        size: 11
+      };
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: 'center'
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF475569' } },
+        bottom: { style: 'medium', color: { argb: 'FF475569' } },
+        left: { style: 'thin', color: { argb: 'FF475569' } },
+        right: { style: 'thin', color: { argb: 'FF475569' } }
+      };
+    });
+
+    // Extract Data Rows
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach((row, rowIndex) => {
+      const isTotalRow = row.classList.contains('total-row');
+      const rowData = [];
+      const cells = row.querySelectorAll('td');
+      
+      cells.forEach((cell, colIndex) => {
+        const text = cell.innerText.trim();
+        if (colIndex === 0) {
+          rowData.push(text);
+        } else {
+          rowData.push(parseValueForExcel(text));
+        }
+      });
+
+      const excelRow = worksheet.addRow(rowData);
+      excelRow.height = isTotalRow ? 26 : 21;
+
+      // Style row
+      excelRow.eachCell((cell, colIndex) => {
+        cell.font = {
+          name: 'Segoe UI',
+          size: 10,
+          bold: isTotalRow
+        };
+
+        if (colIndex === 1) {
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+        } else {
+          cell.alignment = { vertical: 'middle', horizontal: 'right' };
+          if (typeof cell.value === 'number') {
+            cell.numFmt = '#,##0';
+          }
+        }
+
+        if (isTotalRow) {
+          // Total Row Styling
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0F2FE' } // Light blue highlight
+          };
+          cell.font.color = { argb: 'FF0369A1' };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FF0284C7' } },
+            bottom: { style: 'double', color: { argb: 'FF0284C7' } }, // Double underline for totals
+            left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+          };
+        } else {
+          // Alternate rows striping
+          if (rowIndex % 2 === 1) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFF8FAFC' }
+            };
+          }
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+          };
+        }
+      });
+    });
+
+    // Auto-adjust column widths
+    worksheet.columns.forEach(column => {
+      let maxLength = 14;
+      column.eachCell({ includeEmpty: true }, cell => {
+        let valStr = '';
+        if (cell.value !== undefined && cell.value !== null) {
+          if (typeof cell.value === 'number') {
+            valStr = Math.round(cell.value).toLocaleString();
+          } else {
+            valStr = cell.value.toString();
+          }
+        }
+        if (valStr.length > maxLength) {
+          maxLength = valStr.length;
+        }
+      });
+      column.width = maxLength + 8; // Extra padding to ensure column names and metrics are never cut off
+    });
+
+    // Generate and download file
     const localDate = new Date();
     const year = localDate.getFullYear();
     const month = String(localDate.getMonth() + 1).padStart(2, '0');
     const day = String(localDate.getDate()).padStart(2, '0');
     const todayStr = `${year}-${month}-${day}`;
     filename = filename ? filename : 'Sokrio_KPI_Breakdown_' + todayStr + '.xlsx';
-    XLSX.writeFile(wb, filename);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  // Check login mode
+  if (!isLoggedIn()) {
+    document.body.classList.add('login-mode');
+  } else {
+    loggedIn = true;
   }
 
   // Initial load

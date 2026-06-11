@@ -55,7 +55,7 @@ CLIENTS = [
         "org": "Paragon Agro Ltd.",
         "base_url": "https://paragon.report.sokrio.com",
         "email": "super@paragon.com",
-        "password": "PG123@@@"
+        "password": "PGIT123@@@"
     },
     {
         "name": "Muazuddin Steel Industries Limited",
@@ -86,20 +86,6 @@ CLIENTS = [
         "password": "password123"
     },
     {
-        "name": "Marble De carrara",
-        "org": "Marble De carrara",
-        "base_url": "https://mdc.report.sokrio.com",
-        "email": "super@mdc.com",
-        "password": "wahedur123"
-    },
-    {
-        "name": "Celestial Tech",
-        "org": "Celestial Tech",
-        "base_url": "https://celestial.report.sokrio.com",
-        "email": "super@celestial.com",
-        "password": "password123"
-    },
-    {
         "name": "Amin Square BD Ltd",
         "org": "Amin Square BD Ltd",
         "base_url": "https://asl.report.sokrio.com",
@@ -121,32 +107,11 @@ CLIENTS = [
         "password": "password123"
     },
     {
-        "name": "United Lube oil",
-        "org": "United Lube oil",
-        "base_url": "https://lubeoil.report.sokrio.com",
-        "email": "super@lunbeoil.com",
-        "password": "password123"
-    },
-    {
         "name": "M. M. Ispahani Limited",
         "org": "M. M. Ispahani Limited",
         "base_url": "https://itl.report.sokrio.com",
         "email": "super@itl.com",
         "password": "password123"
-    },
-    {
-        "name": "Mariners Group",
-        "org": "Mariners Group",
-        "base_url": "https://marinersgroup.report.sokrio.com",
-        "email": "super@marinersgroup.com",
-        "password": "Wy@oz0RO#E3R4s8"
-    },
-    {
-        "name": "Paragon Feed Ltd.",
-        "org": "Paragon Feed Ltd.",
-        "base_url": "https://paragongrp.report.sokrio.com",
-        "email": "asfakul@paragon.com.bd",
-        "password": "PG123@@@"
     },
     {
         "name": "MMCH Monno Medical College & Hospital",
@@ -279,27 +244,6 @@ CLIENTS = [
         "org": "Manola",
         "base_url": "https://manola.report.sokrio.com",
         "email": "super@manola.com",
-        "password": "Password123"
-    },
-    {
-        "name": "Wellspring",
-        "org": "Wellspring",
-        "base_url": "https://wellspring.report.sokrio.com",
-        "email": "super@wellspring.com",
-        "password": "Wellspring@2025"
-    },
-    {
-        "name": "Paragon Poultry",
-        "org": "Paragon Poultry",
-        "base_url": "https://pgcgf.report.sokrio.com",
-        "email": "super@pgcgf.com",
-        "password": "Pgcgf@12345678"
-    },
-    {
-        "name": "Paragon Dairy",
-        "org": "Paragon Dairy",
-        "base_url": "https://pgdairy.report.sokrio.com",
-        "email": "admin@pgdairy.com",
         "password": "Password123"
     },
     {
@@ -439,7 +383,7 @@ class SokrioClient:
             f"{self.base_url}/api/v1/daily-reports",
             params=params,
             headers=self._api_headers(),
-            timeout=20
+            timeout=60
         )
         if r.status_code == 200:
             return r.json()
