@@ -808,11 +808,12 @@
     const summaryGrid = document.getElementById('summary-grid');
     summaryGrid.innerHTML = '';
     const mainKPIs = [
-      { label: 'Checked In SR', key: 'CheckIn (Report)', icon: '✅' },
-      { label: 'Total Orders',    key: 'Order Created',    icon: '🛒' },
-      { label: 'Total Order Amount', key: 'Order Amount',  icon: '💰' },
-      { label: 'Total Delivered Amount', key: 'Delivered Amount', icon: '🚚' },
-      { label: 'Visited Outlet',  key: 'Outlets Visited',  icon: '🏬' },
+      { label: 'Checkin Field Force', key: 'Checkin Field Force', icon: '✅' },
+      { label: 'Checkin Manager',     key: 'Checkin Manager',     icon: '👔' },
+      { label: 'Total Orders',        key: 'Order Created',       icon: '🛒' },
+      { label: 'Total Order Amount',  key: 'Order Amount',        icon: '💰' },
+      { label: 'Delivered Amount',    key: 'Delivered Amount',    icon: '🚚' },
+      { label: 'Visited Outlet',      key: 'Outlets Visited',     icon: '🏬' },
     ];
 
     mainKPIs.forEach(k => {
@@ -830,7 +831,7 @@
     const theader = document.getElementById('kpi-table-header');
     theader.innerHTML = '<th>Company Name</th>';
     kpiLabels.forEach(label => {
-      theader.innerHTML += `<th>${label.replace(' (Report)', '')}</th>`;
+      theader.innerHTML += `<th>${label}</th>`;
     });
 
     const tbody = document.getElementById('kpi-table-body');

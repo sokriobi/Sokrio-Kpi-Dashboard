@@ -298,8 +298,8 @@ CLIENTS = [
 ]
 
 KPI_METRICS = [
-    {"only": "checkInDsrCount", "is_report": "1", "label": "CheckIn (Report)"},
-    {"only": "checkInDsrCount", "is_report": "0", "label": "CheckIn (Non-Report)"},
+    {"only": "checkInDsrCount", "is_report": "1", "label": "Checkin Field Force"},
+    {"only": "checkInDsrCount", "is_report": "0", "label": "Checkin Manager"},
     {"only": "outletsVisited",  "label": "Outlets Visited"},
     {"only": "orderCreated",    "label": "Order Created"},
     {"only": "orderAmount",     "label": "Order Amount"},
