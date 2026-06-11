@@ -617,17 +617,13 @@
       loggedIn = true;
       
       const loginCont = document.getElementById('login-container');
-      loginCont.style.opacity = '0';
-      loginCont.style.transition = 'opacity 0.4s ease';
-      setTimeout(() => {
-        loginCont.style.display = 'none';
-        document.body.classList.remove('login-mode');
-        if (!dataPreFetched) {
-          showLoading(true, 'Finishing up data loading…');
-        } else {
-          showLoading(false);
-        }
-      }, 400);
+      loginCont.style.display = 'none';
+      document.body.classList.remove('login-mode');
+      if (!dataPreFetched) {
+        showLoading(true, 'Finishing up data loading…');
+      } else {
+        showLoading(false);
+      }
     } else {
       errorEl.textContent = '❌ Wrong password or email!';
       errorEl.style.display = 'block';
